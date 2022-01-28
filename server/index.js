@@ -23,6 +23,36 @@ app.get("/getTasks", (req, res) => {
   });
 });
 
+app.post("/createTask", async (req, res) => {
+  const task = req.body;
+  const newTask = new taskModel(task);
+  await newTask.save();
+
+  // res.json(task);
+  res.sendStatus(200);
+});
+
+app.put("/toggleComplete", async (req, res) => {
+  const taskId = req.id;
+
+  await taskModel.findById(taskId, (err, newTask) => {
+    if (err) {
+      console.log(err);
+    } else {
+      newTask.complete = !newTask.complete;
+      newTask.save();
+      res.sendStatus(200);
+    }
+  });
+});
+
+app.delete("/deleteTask/:id", async (req, res) => {
+  const taskId = req.params.id;
+
+  await taskModel.findByIdAndRemove(taskId).exec();
+  res.sendStatus(200);
+});
+
 app.listen(3001, () => {
   console.log("Server is running on port 3001");
 });

@@ -4,11 +4,11 @@ const taskSchema = new mongoose.Schema({
   taskName: {
     type: String,
   },
-  completed: {
-    type: Boolean,
-  },
   dueDate: {
     type: Date,
+  },
+  completed: {
+    type: Boolean,
   },
 });
 
