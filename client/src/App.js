@@ -4,12 +4,17 @@ import Task from "./components/Task";
 
 function App() {
   const [tasks, setTasks] = useState([]);
+  const [activeTask, setActiveTask] = useState("");
 
   useEffect(() => {
+    getTasks();
+  }, []);
+
+  const getTasks = () => {
     Axios.get("http://localhost:3001/getTasks").then((res) => {
       setTasks(res.data);
     });
-  }, []);
+  };
 
   const createTask = () => {
     const task = {
@@ -22,16 +27,26 @@ function App() {
     });
   };
 
+  const deleteTask = (id) => {
+    Axios.delete(`http://localhost:3001/deleteTask/${id}`).then(() => {
+      getTasks();
+    });
+  };
+
   return (
     <div className="w-screen h-screen bg-white overflow-hidden">
-      <div className="mx-auto h-full pt-[52px] pb-8 max-w-xl">
-        <div className="flex flex-col gap-2">
+      <div className="mx-auto h-full pt-[52px] pb-8 max-w-xl px-4 xl:px-0">
+        <div className="flex flex-col">
           {tasks.map((task) => {
             return (
               <Task
                 key={task._id}
+                id={task._id}
                 title={task.taskName}
                 completed={task.completed}
+                activeTask={activeTask}
+                setActiveTask={setActiveTask}
+                deleteTask={deleteTask}
               />
             );
           })}
