@@ -25,32 +25,33 @@ app.get("/getTasks", (req, res) => {
 
 app.post("/createTask", async (req, res) => {
   const task = req.body;
-  const newTask = new taskModel(task);
-  await newTask.save();
-
-  // res.json(task);
+  await taskModel.create(task);
   res.sendStatus(200);
 });
 
-app.put("/toggleComplete", async (req, res) => {
-  const taskId = req.id;
-
-  await taskModel.findById(taskId, (err, newTask) => {
-    if (err) {
-      console.log(err);
-    } else {
-      newTask.complete = !newTask.complete;
-      newTask.save();
-      res.sendStatus(200);
-    }
-  });
+app.put("/toggleComplete/:id", async (req, res) => {
+  const taskId = req.params.id;
+  try {
+    await taskModel
+      .findById(taskId, (err, updatedTask) => {
+        updatedTask.completed = !updatedTask.completed;
+        updatedTask.save();
+        res.sendStatus(200);
+      })
+      .clone();
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 app.delete("/deleteTask/:id", async (req, res) => {
   const taskId = req.params.id;
-
-  await taskModel.findByIdAndRemove(taskId).exec();
-  res.sendStatus(200);
+  try {
+    await taskModel.findByIdAndRemove(taskId).exec();
+    res.sendStatus(200);
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 app.listen(3001, () => {

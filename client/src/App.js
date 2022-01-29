@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import Axios from "axios";
 import Task from "./components/Task";
+const ObjectID = require("bson-objectid");
 
 function App() {
   const [tasks, setTasks] = useState([]);
-  const [activeTask, setActiveTask] = useState("");
 
   useEffect(() => {
     getTasks();
@@ -16,21 +16,40 @@ function App() {
     });
   };
 
+  // const createTask = () => {
+  //   const task = {
+  //     taskName: "",
+  //     dueDate: Date.now(),
+  //     completed: false,
+  //   };
+  //   Axios.post("http://localhost:3001/createTask", task).then((res) => {
+  //     setTasks([...tasks, task]);
+  //   });
+  // };
+
   const createTask = () => {
     const task = {
+      _id: ObjectID(),
       taskName: "",
       dueDate: Date.now(),
       completed: false,
     };
-    Axios.post("http://localhost:3001/createTask", task).then((res) => {
-      setTasks([...tasks, task]);
-    });
+    Axios.post("http://localhost:3001/createTask", task);
+    setTasks([...tasks, task]);
   };
 
   const deleteTask = (id) => {
-    Axios.delete(`http://localhost:3001/deleteTask/${id}`).then(() => {
-      getTasks();
-    });
+    Axios.delete(`http://localhost:3001/deleteTask/${id}`);
+    const tempTasks = tasks.filter((task) => task._id !== id);
+    setTasks([...tempTasks]);
+  };
+
+  const updateTask = (id) => {
+    Axios.put(`http://localhost:3001/toggleComplete/${id}`);
+    const taskIndex = tasks.findIndex((task) => task._id === id);
+    let updatedTasks = tasks;
+    updatedTasks[taskIndex].completed = !updatedTasks[taskIndex].completed;
+    setTasks([...updatedTasks]);
   };
 
   return (
@@ -44,8 +63,7 @@ function App() {
                 id={task._id}
                 title={task.taskName}
                 completed={task.completed}
-                activeTask={activeTask}
-                setActiveTask={setActiveTask}
+                updateTask={updateTask}
                 deleteTask={deleteTask}
               />
             );
